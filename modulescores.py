@@ -58,15 +58,47 @@ def module_score(
     scores = np.mean(counts_modgenes, axis=1) - np.mean(counts_all, axis=1) #(row means of counts_modgenes ) - (row means of counts_all)
     
     adata.obs[score_name] = scores
+    
+    return genes_use
 
 
+#Test 1 for operation, not accuracy
 h5ad_path = '../forFLE/FLE.h5ad'
 FLE = sc.read_h5ad(h5ad_path)
 
 with open('mod1.txt', 'r') as f:
     mod1 = [line.strip() for line in f]
 
-module_score(FLE, mod1, "Mod1Score")
+x = module_score(FLE, mod1, "Mod1Score")
 
 
 print(FLE.obs)
+print(len(x))
+
+
+
+print("~~~~~~~~~~`Space between tests~~~~~~~~~~")
+
+#Test 2 for accuracy
+
+mod1_indices = []
+for i in range(0,len(mod1)):
+    
+    if (mod1[i] in FLE.var_names):
+        mod1_indices.append(FLE.var_names.get_loc(mod1[i]))
+
+counts_modgenes = np.zeros((101)) #all cells, module genes
+counts_all = FLE.X.toarray() #all cells, all genes
+
+for i in range(0,len(mod1_indices)):
+    j =mod1_indices[i]
+    counts_modgenes[i] = counts_all[0,j]
+a = round(np.mean(counts_modgenes) - np.mean(counts_all[0,:]),3) 
+b = round(FLE.obs['Mod1Score'][0],3)
+c = round(a/b,3)
+
+if (c == 1):
+    print("Test passed with ", "a =", a, "and b =", b)
+    
+else:
+    print("Test failed")
