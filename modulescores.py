@@ -1,8 +1,36 @@
+import numpy as np
+import scanpy as sc
+from anndata import AnnData
+
 def module_score(
     adata:AnnData,
-    genes_use: Optional[list] = None,
+    genes_use: list,
     score_name: Optional[str] = None,
     verbose: bool = True):
+    
+    """\
+   
+    Compute module scores for all genes in adata as described in methods of RGC-dev paper.
+    
+    
+    Parameters
+    ----------
+    adata
+        The (annotated) data matrix of shape `n_obs` × `n_vars`.
+        Rows correspond to cells and columns to genes.
+    genes_use
+        list of genes in module of interest
+    score_name
+        Name endowed to the module score to be computed
+        e.g. "Mod1"
+    verbose
+        Inform user of fraction of module genes that are in adata
+        
+    Returns
+    -------
+    adata with a new .obs called score_name
+    
+    """
     
     if (score_name==None):
         score_name = str(input("Provide a name for this score (no spaces): "))
