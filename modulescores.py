@@ -1,6 +1,7 @@
 import numpy as np
 import scanpy as sc
 from anndata import AnnData
+from typing import Union, Optional, Tuple, Collection, Sequence, Iterable
 
 def module_score(
     adata:AnnData,
@@ -9,8 +10,7 @@ def module_score(
     verbose: bool = True):
     
     """\
-   
-    Compute module scores for all genes in adata as described in methods of RGC-dev paper.
+    Compute module scores for all cells in adata as described in methods of RGC-dev paper.
     
     
     Parameters
@@ -46,7 +46,7 @@ def module_score(
     if (verbose):
         if(len(genes_use0) > len(genes_use)):
             n = len(genes_use0) - len(genes_use)
-            print("Note that", n, "genes (",n*100/len(genes_use0), " %) in your module do not exist in the data set." )
+            print("Note that", n, "of the", len(genes_use0), "genes in your module do not exist in the data set." )
     
     
     
@@ -59,6 +59,14 @@ def module_score(
     
     adata.obs[score_name] = scores
 
-    
-    
 
+h5ad_path = '../forFLE/FLE.h5ad'
+FLE = sc.read_h5ad(h5ad_path)
+
+with open('mod1.txt', 'r') as f:
+    mod1 = [line.strip() for line in f]
+
+module_score(FLE, mod1, "Mod1Score")
+
+
+print(FLE.obs)
