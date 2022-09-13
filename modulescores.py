@@ -3,11 +3,7 @@ import scanpy as sc
 from anndata import AnnData
 from typing import Union, Optional, Tuple, Collection, Sequence, Iterable
 
-def module_score(
-    adata:AnnData,
-    genes_use: list,
-    score_name: Optional[str] = None,
-    verbose: bool = True):
+def module_score(adata:AnnData, genes_use: list, score_name: Optional[str] = None, verbose: bool = True):
     
     """\
     Compute module scores for all cells in adata as described in methods of RGC-dev paper.
@@ -46,7 +42,9 @@ def module_score(
     if (verbose):
         if(len(genes_use0) > len(genes_use)):
             n = len(genes_use0) - len(genes_use)
-            print("Note that", n, "of the", len(genes_use0), "genes in your module do not exist in the data set." )
+            print(score_name,": Note that", n, "of the", len(genes_use0), "genes in your module do not exist in the data set." )
+        else:
+            print(score_name,": Note that all of the", len(genes_use), "genes in your module are in the data set." )
     
     
     
@@ -60,45 +58,3 @@ def module_score(
     adata.obs[score_name] = scores
     
     return genes_use
-
-
-#Test 1 for operation, not accuracy
-h5ad_path = '../forFLE/FLE.h5ad'
-FLE = sc.read_h5ad(h5ad_path)
-
-with open('mod1.txt', 'r') as f:
-    mod1 = [line.strip() for line in f]
-
-x = module_score(FLE, mod1, "Mod1Score")
-
-
-print(FLE.obs)
-print(len(x))
-
-
-
-print("~~~~~~~~~~`Space between tests~~~~~~~~~~")
-
-#Test 2 for accuracy
-
-mod1_indices = []
-for i in range(0,len(mod1)):
-    
-    if (mod1[i] in FLE.var_names):
-        mod1_indices.append(FLE.var_names.get_loc(mod1[i]))
-
-counts_modgenes = np.zeros((101)) #all cells, module genes
-counts_all = FLE.X.toarray() #all cells, all genes
-
-for i in range(0,len(mod1_indices)):
-    j =mod1_indices[i]
-    counts_modgenes[i] = counts_all[0,j]
-a = round(np.mean(counts_modgenes) - np.mean(counts_all[0,:]),3) 
-b = round(FLE.obs['Mod1Score'][0],3)
-c = round(a/b,3)
-
-if (c == 1):
-    print("Test passed with ", "a =", a, "and b =", b)
-    
-else:
-    print("Test failed")
